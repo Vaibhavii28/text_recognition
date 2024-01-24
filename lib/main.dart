@@ -182,7 +182,7 @@ class _MyHomePageState extends State<MyHomePage> {
         outputText = outputText + line.text;
 
       }
-      log(outputText + 'output');
+      log(outputText);
     }
     textScanning = false;
     setState(() {});
