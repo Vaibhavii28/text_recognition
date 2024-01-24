@@ -1,8 +1,10 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:google_ml_kit/google_ml_kit.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 void main() {
   runApp(const MyApp());
@@ -37,6 +39,7 @@ class _MyHomePageState extends State<MyHomePage> {
   XFile? imageFile;
 
   String scannedText = "";
+  String outputText="";
 
   @override
   Widget build(BuildContext context) {
@@ -150,6 +153,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void getImage(ImageSource source) async {
     try {
+      getCameraPermission();
       final pickedImage = await ImagePicker().pickImage(source: source);
       if (pickedImage != null) {
         textScanning = true;
@@ -171,17 +175,35 @@ class _MyHomePageState extends State<MyHomePage> {
     RecognisedText recognisedText = await textDetector.processImage(inputImage);
     await textDetector.close();
     scannedText = "";
+    outputText="";
     for (TextBlock block in recognisedText.blocks) {
       for (TextLine line in block.lines) {
         scannedText = scannedText + line.text + "\n";
+        outputText = outputText + line.text;
+
       }
+      log(outputText + 'output');
     }
     textScanning = false;
     setState(() {});
   }
 
   @override
+
+  void getCameraPermission()
+  async{
+    bool isCameraGranted = await Permission.camera.request().isGranted;
+    if (!isCameraGranted) {
+      isCameraGranted =
+          await Permission.camera.request() == PermissionStatus.granted;
+    }
+    if (!isCameraGranted) {
+      return ;
+    }
+  }
+
   void initState() {
+    getCameraPermission();
     super.initState();
   }
 }
